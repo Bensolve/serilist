@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import SeriesCard from '@/components/SeriesCard';
 import AddSeriesModal from '@/components/AddSeriesModal';
 import EditSeriesModal from '@/components/EditSeriesModal';
+import { useStreak } from '@/hooks/useStreak';
 
 type Status = 'WATCHING' | 'COMPLETED' | 'PLANNING' | 'DROPPED' | 'PAUSED';
 
@@ -21,6 +22,7 @@ export default function Home() {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [selected, setSelected] = useState<Series | null>(null);
+  const { streak, recordActivity } = useStreak();
 
   // Load from localStorage
   useEffect(() => {
@@ -33,8 +35,16 @@ export default function Home() {
     localStorage.setItem('serilist', JSON.stringify(list));
   }, [list]);
 
-  const add = (series: Series) => setList([...list, series]);
-  const save = (updated: Series) => setList(list.map((s) => (s.id === updated.id ? updated : s)));
+  const add = (series: Series) => {
+    setList([...list, series]);
+    recordActivity(); // 🔥 STREAK!
+  };
+
+  const save = (updated: Series) => {
+    setList(list.map((s) => (s.id === updated.id ? updated : s)));
+    recordActivity(); // 🔥 STREAK!
+  };
+
   const del = (id: number) => setList(list.filter((s) => s.id !== id));
 
   const watching = list.filter((s) => s.status === 'WATCHING');
@@ -45,7 +55,7 @@ export default function Home() {
     <div className="min-h-screen p-4 md:p-8">
       {/* Header */}
       <div className="glass-panel p-6 mb-6 sharp">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <div>
             <h1 className="text-3xl text-neon-cyan mb-1">SERILIST</h1>
             <p className="data-label">TOTAL SERIES: {list.length}</p>
@@ -53,6 +63,24 @@ export default function Home() {
           <button onClick={() => setAddOpen(true)} className="btn-system">
             + ADD SERIES
           </button>
+        </div>
+
+        {/* STREAK DISPLAY 🔥 */}
+        <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="bg-darker p-3 sharp">
+            <p className="data-label mb-1">CURRENT STREAK</p>
+            <p className="text-2xl font-bold text-neon-cyan">{streak.current} 🔥</p>
+          </div>
+          <div className="bg-darker p-3 sharp">
+            <p className="data-label mb-1">LONGEST STREAK</p>
+            <p className="text-2xl font-bold text-neon-green">{streak.longest} 🏆</p>
+          </div>
+          <div className="bg-darker p-3 sharp">
+            <p className="data-label mb-1">LAST ACTIVITY</p>
+            <p className="text-xs text-cold-gray mt-1">
+              {streak.lastActivity ? new Date(streak.lastActivity).toLocaleDateString() : 'NONE'}
+            </p>
+          </div>
         </div>
       </div>
 
