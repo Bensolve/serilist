@@ -12,6 +12,13 @@ const spaceMono = Space_Mono({
 export const metadata = {
   title: 'SeriList - Track Your Series',
   description: 'Futuristic TV series tracking system',
+  manifest: '/manifest.json',
+  themeColor: '#00d9ff',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'SeriList',
+  },
 };
 
 export default function RootLayout({
